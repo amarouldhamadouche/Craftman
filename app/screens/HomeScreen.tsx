@@ -85,7 +85,7 @@ export const HomeScreen: FC<DemoTabScreenProps<"Home">> = function HomeScreen({ 
       </ScrollView>
 
       <View style={styles.sectionHeader}>
-        <Text preset="bold" size="sm">
+        <Text preset="bold" size="sm" >
           Recommended craftsmen
         </Text>
         <Pressable onPress={() => navigation.navigate("Showroom")}>
@@ -170,10 +170,11 @@ export const HomeScreen: FC<DemoTabScreenProps<"Home">> = function HomeScreen({ 
 
 const styles = StyleSheet.create((theme) => ({
   screenContent: {
-    paddingHorizontal: theme.spacing.lg,
+    //paddingHorizontal: theme.spacing.lg,
     paddingBottom: theme.spacing.xl,
   },
   headerRow: {
+    paddingHorizontal: theme.spacing.lg,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -216,6 +217,7 @@ const styles = StyleSheet.create((theme) => ({
     elevation: 2,
   },
   searchWrapper: {
+    paddingHorizontal: theme.spacing.lg,
     marginBottom: theme.spacing.md,
   },
   searchInput: {
@@ -226,6 +228,7 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: theme.spacing.xs,
   },
   sectionHeader: {
+    paddingHorizontal: theme.spacing.lg,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -236,7 +239,9 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.tint,
   },
   categoryList: {
-    paddingVertical: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.md,
+    //paddingVertical: theme.spacing.xs,
   },
   categoryItem: {
     alignItems: "center",
@@ -261,6 +266,7 @@ const styles = StyleSheet.create((theme) => ({
     textAlign: "center",
   },
   featuredList: {
+    paddingHorizontal: theme.spacing.lg,
     paddingBottom: theme.spacing.md,
   },
   featuredCard: {
@@ -279,6 +285,9 @@ const styles = StyleSheet.create((theme) => ({
     height: 46,
     borderRadius: 23,
     marginBottom: theme.spacing.sm,
+  },
+  sectionTitle: {
+    paddingHorizontal: theme.spacing.lg,
   },
   featuredName: {
     marginBottom: 2,
@@ -301,6 +310,7 @@ const styles = StyleSheet.create((theme) => ({
     marginBottom: theme.spacing.sm,
   },
   viewRow: {
+
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-end",
@@ -310,6 +320,7 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.text,
   },
   postList: {
+    paddingHorizontal: theme.spacing.lg,
     gap: theme.spacing.md,
   },
   postCard: {
@@ -333,5 +344,6 @@ const styles = StyleSheet.create((theme) => ({
   browseButton: {
     marginTop: theme.spacing.lg,
     borderRadius: 16,
+    marginHorizontal: theme.spacing.lg,
   },
 }))
