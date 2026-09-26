@@ -1,12 +1,11 @@
 import { ErrorInfo } from "react"
-import { ScrollView, TextStyle, View, ViewStyle } from "react-native"
+import { ScrollView, View, ViewStyle } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 
 import { Button } from "@/components/Button"
 import { Icon } from "@/components/Icon"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
-import { useAppTheme } from "@/theme/context"
-import type { ThemedStyle } from "@/theme/types"
 
 export interface ErrorDetailsProps {
   error: Error
@@ -20,79 +19,69 @@ export interface ErrorDetailsProps {
  * @returns {JSX.Element} The rendered `ErrorDetails` component.
  */
 export function ErrorDetails(props: ErrorDetailsProps) {
-  const { themed } = useAppTheme()
   return (
     <Screen
       preset="fixed"
       safeAreaEdges={["top", "bottom"]}
-      contentContainerStyle={themed($contentContainer)}
+      contentContainerStyle={styles.contentContainer}
     >
       <View style={$topSection}>
-        <Icon icon="ladybug" size={64} />
-        <Text style={themed($heading)} preset="subheading" tx="errorScreen:title" />
+        <Icon icon="airplane" size={64} />
+        <Text style={styles.heading} preset="subheading" tx="errorScreen:title" />
         <Text tx="errorScreen:friendlySubtitle" />
       </View>
 
       <ScrollView
-        style={themed($errorSection)}
-        contentContainerStyle={themed($errorSectionContentContainer)}
+        style={styles.errorSection}
+        contentContainerStyle={styles.errorSectionContentContainer}
       >
-        <Text style={themed($errorContent)} weight="bold" text={`${props.error}`.trim()} />
+        <Text style={styles.errorContent} weight="bold" text={`${props.error}`.trim()} />
         <Text
           selectable
-          style={themed($errorBacktrace)}
+          style={styles.errorBacktrace}
           text={`${props.errorInfo?.componentStack ?? ""}`.trim()}
         />
       </ScrollView>
 
-      <Button
-        preset="reversed"
-        style={themed($resetButton)}
-        onPress={props.onReset}
-        tx="errorScreen:reset"
-      />
+      <Button preset="reversed" style={styles.resetButton} onPress={props.onReset} tx="errorScreen:reset" />
     </Screen>
   )
 }
-
-const $contentContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  alignItems: "center",
-  paddingHorizontal: spacing.lg,
-  paddingTop: spacing.xl,
-  flex: 1,
-})
 
 const $topSection: ViewStyle = {
   flex: 1,
   alignItems: "center",
 }
 
-const $heading: ThemedStyle<TextStyle> = ({ colors, spacing }) => ({
-  color: colors.error,
-  marginBottom: spacing.md,
-})
-
-const $errorSection: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
-  flex: 2,
-  backgroundColor: colors.separator,
-  marginVertical: spacing.md,
-  borderRadius: 6,
-})
-
-const $errorSectionContentContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  padding: spacing.md,
-})
-
-const $errorContent: ThemedStyle<TextStyle> = ({ colors }) => ({
-  color: colors.error,
-})
-
-const $errorBacktrace: ThemedStyle<TextStyle> = ({ colors, spacing }) => ({
-  marginTop: spacing.md,
-  color: colors.textDim,
-})
-
-const $resetButton: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
-  backgroundColor: colors.error,
-  paddingHorizontal: spacing.xxl,
-})
+const styles = StyleSheet.create((theme) => ({
+  contentContainer: {
+    alignItems: "center",
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.xl,
+    flex: 1,
+  },
+  heading: {
+    color: theme.colors.error,
+    marginBottom: theme.spacing.md,
+  },
+  errorSection: {
+    flex: 2,
+    backgroundColor: theme.colors.separator,
+    marginVertical: theme.spacing.md,
+    borderRadius: 6,
+  },
+  errorSectionContentContainer: {
+    padding: theme.spacing.md,
+  },
+  errorContent: {
+    color: theme.colors.error,
+  },
+  errorBacktrace: {
+    marginTop: theme.spacing.md,
+    color: theme.colors.textDim,
+  },
+  resetButton: {
+    backgroundColor: theme.colors.error,
+    paddingHorizontal: theme.spacing.xxl,
+  },
+}))

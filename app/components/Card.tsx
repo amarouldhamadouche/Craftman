@@ -8,10 +8,9 @@ import {
   ViewProps,
   ViewStyle,
 } from "react-native"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 
-import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
-import type { ThemedStyle, ThemedStyleArray } from "@/theme/types"
 
 import { Text, TextProps } from "./Text"
 
@@ -154,10 +153,8 @@ export function Card(props: CardProps) {
     ...WrapperProps
   } = props
 
-  const {
-    themed,
-    theme: { spacing },
-  } = useAppTheme()
+  const { theme } = useUnistyles()
+  const { spacing } = theme
 
   const preset: Presets = props.preset ?? "default"
   const isPressable = !!WrapperProps.onPress
@@ -171,24 +168,25 @@ export function Card(props: CardProps) {
   const HeaderContentWrapper = verticalAlignment === "force-footer-bottom" ? View : Fragment
 
   const $containerStyle: StyleProp<ViewStyle> = [
-    themed($containerPresets[preset]),
+    $styles.row,
+    styles[$containerPresetKeys[preset]],
     $containerStyleOverride,
   ]
   const $headingStyle = [
-    themed($headingPresets[preset]),
+    styles[$headingPresetKeys[preset]],
     (isFooterPresent || isContentPresent) && { marginBottom: spacing.xxxs },
     $headingStyleOverride,
     HeadingTextProps?.style,
   ]
   const $contentStyle = [
-    themed($contentPresets[preset]),
+    styles[$contentPresetKeys[preset]],
     isHeadingPresent && { marginTop: spacing.xxxs },
     isFooterPresent && { marginBottom: spacing.xxxs },
     $contentStyleOverride,
     ContentTextProps?.style,
   ]
   const $footerStyle = [
-    themed($footerPresets[preset]),
+    styles[$footerPresetKeys[preset]],
     (isHeadingPresent || isContentPresent) && { marginTop: spacing.xxxs },
     $footerStyleOverride,
     FooterTextProps?.style,
@@ -255,18 +253,6 @@ export function Card(props: CardProps) {
   )
 }
 
-const $containerBase: ThemedStyle<ViewStyle> = (theme) => ({
-  borderRadius: theme.spacing.md,
-  padding: theme.spacing.xs,
-  borderWidth: 1,
-  shadowColor: theme.colors.palette.neutral800,
-  shadowOffset: { width: 0, height: 12 },
-  shadowOpacity: 0.08,
-  shadowRadius: 12.81,
-  elevation: 16,
-  minHeight: 96,
-})
-
 const $alignmentWrapper: ViewStyle = {
   flex: 1,
   alignSelf: "stretch",
@@ -279,36 +265,63 @@ const $alignmentWrapperFlexOptions = {
   "force-footer-bottom": "space-between",
 } as const
 
-const $containerPresets: Record<Presets, ThemedStyleArray<ViewStyle>> = {
-  default: [
-    $styles.row,
-    $containerBase,
-    (theme) => ({
-      backgroundColor: theme.colors.palette.neutral100,
-      borderColor: theme.colors.palette.neutral300,
-    }),
-  ],
-  reversed: [
-    $styles.row,
-    $containerBase,
-    (theme) => ({
-      backgroundColor: theme.colors.palette.neutral800,
-      borderColor: theme.colors.palette.neutral500,
-    }),
-  ],
-}
+const $containerPresetKeys = {
+  default: "containerDefault",
+  reversed: "containerReversed",
+} as const
 
-const $headingPresets: Record<Presets, ThemedStyleArray<TextStyle>> = {
-  default: [],
-  reversed: [(theme) => ({ color: theme.colors.palette.neutral100 })],
-}
+const $headingPresetKeys = {
+  default: "headingDefault",
+  reversed: "headingReversed",
+} as const
 
-const $contentPresets: Record<Presets, ThemedStyleArray<TextStyle>> = {
-  default: [],
-  reversed: [(theme) => ({ color: theme.colors.palette.neutral100 })],
-}
+const $contentPresetKeys = {
+  default: "contentDefault",
+  reversed: "contentReversed",
+} as const
 
-const $footerPresets: Record<Presets, ThemedStyleArray<TextStyle>> = {
-  default: [],
-  reversed: [(theme) => ({ color: theme.colors.palette.neutral100 })],
-}
+const $footerPresetKeys = {
+  default: "footerDefault",
+  reversed: "footerReversed",
+} as const
+
+const styles = StyleSheet.create((theme) => ({
+  containerDefault: {
+    borderRadius: theme.spacing.md,
+    padding: theme.spacing.xs,
+    borderWidth: 1,
+    shadowColor: theme.colors.palette.neutral800,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12.81,
+    elevation: 16,
+    minHeight: 96,
+    backgroundColor: theme.colors.palette.neutral100,
+    borderColor: theme.colors.palette.neutral300,
+  },
+  containerReversed: {
+    borderRadius: theme.spacing.md,
+    padding: theme.spacing.xs,
+    borderWidth: 1,
+    shadowColor: theme.colors.palette.neutral800,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12.81,
+    elevation: 16,
+    minHeight: 96,
+    backgroundColor: theme.colors.palette.neutral800,
+    borderColor: theme.colors.palette.neutral500,
+  },
+  headingDefault: {},
+  headingReversed: {
+    color: theme.colors.palette.neutral100,
+  },
+  contentDefault: {},
+  contentReversed: {
+    color: theme.colors.palette.neutral100,
+  },
+  footerDefault: {},
+  footerReversed: {
+    color: theme.colors.palette.neutral100,
+  },
+}))

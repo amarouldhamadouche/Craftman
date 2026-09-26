@@ -1,117 +1,123 @@
-import { TextStyle, ViewStyle } from "react-native"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
+import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { StyleSheet } from "react-native-unistyles"
 
 import { Icon } from "@/components/Icon"
-import { EpisodeProvider } from "@/context/EpisodeContext"
-import { translate } from "@/i18n/translate"
-import { DemoCommunityScreen } from "@/screens/DemoCommunityScreen"
-import { DemoDebugScreen } from "@/screens/DemoDebugScreen"
-import { DemoPodcastListScreen } from "@/screens/DemoPodcastListScreen"
-import { DemoShowroomScreen } from "@/screens/DemoShowroomScreen/DemoShowroomScreen"
-import { useAppTheme } from "@/theme/context"
-import type { ThemedStyle } from "@/theme/types"
+import { AccountScreen } from "@/screens/AccountScreen"
+import { CraftsmanDetailScreen } from "@/screens/CraftsmanDetailScreen"
+import { HomeScreen } from "@/screens/HomeScreen"
+import { PostDetailScreen } from "@/screens/PostDetailScreen"
+import { PostsScreen } from "@/screens/PostsScreen"
+import { ShowroomScreen } from "@/screens/ShowroomScreen"
+import { useThemeStore } from "@/store/theme.store"
 
-import type { DemoTabParamList } from "./navigationTypes"
+import type { DemoTabParamList, PostsStackParamList, ShowroomStackParamList } from "./navigationTypes"
 
 const Tab = createBottomTabNavigator<DemoTabParamList>()
+const ShowroomStack = createNativeStackNavigator<ShowroomStackParamList>()
+const PostsStack = createNativeStackNavigator<PostsStackParamList>()
 
-/**
- * This is the main navigator for the demo screens with a bottom tab bar.
- * Each tab is a stack navigator with its own set of screens.
- *
- * More info: https://reactnavigation.org/docs/bottom-tab-navigator/
- * @returns {JSX.Element} The rendered `DemoNavigator`.
- */
-export function DemoNavigator() {
-  const { bottom } = useSafeAreaInsets()
-  const {
-    themed,
-    theme: { colors },
-  } = useAppTheme()
-
+function ShowroomStackNavigator() {
   return (
-    <EpisodeProvider>
-      <Tab.Navigator
-        screenOptions={{
-          headerShown: false,
-          tabBarHideOnKeyboard: true,
-          tabBarStyle: themed([$tabBar, { height: bottom + 70 }]),
-          tabBarActiveTintColor: colors.text,
-          tabBarInactiveTintColor: colors.text,
-          tabBarLabelStyle: themed($tabBarLabel),
-          tabBarItemStyle: themed($tabBarItem),
-        }}
-      >
-        <Tab.Screen
-          name="DemoShowroom"
-          component={DemoShowroomScreen}
-          options={{
-            tabBarLabel: translate("demoNavigator:componentsTab"),
-            tabBarIcon: ({ focused }) => (
-              <Icon
-                icon="components"
-                color={focused ? colors.tint : colors.tintInactive}
-                size={30}
-              />
-            ),
-          }}
-        />
-
-        <Tab.Screen
-          name="DemoCommunity"
-          component={DemoCommunityScreen}
-          options={{
-            tabBarLabel: translate("demoNavigator:communityTab"),
-            tabBarIcon: ({ focused }) => (
-              <Icon
-                icon="community"
-                color={focused ? colors.tint : colors.tintInactive}
-                size={30}
-              />
-            ),
-          }}
-        />
-
-        <Tab.Screen
-          name="DemoPodcastList"
-          component={DemoPodcastListScreen}
-          options={{
-            tabBarAccessibilityLabel: translate("demoNavigator:podcastListTab"),
-            tabBarLabel: translate("demoNavigator:podcastListTab"),
-            tabBarIcon: ({ focused }) => (
-              <Icon icon="podcast" color={focused ? colors.tint : colors.tintInactive} size={30} />
-            ),
-          }}
-        />
-
-        <Tab.Screen
-          name="DemoDebug"
-          component={DemoDebugScreen}
-          options={{
-            tabBarLabel: translate("demoNavigator:debugTab"),
-            tabBarIcon: ({ focused }) => (
-              <Icon icon="debug" color={focused ? colors.tint : colors.tintInactive} size={30} />
-            ),
-          }}
-        />
-      </Tab.Navigator>
-    </EpisodeProvider>
+    <ShowroomStack.Navigator screenOptions={{ headerShown: false }}>
+      <ShowroomStack.Screen name="ShowroomList" component={ShowroomScreen} />
+      <ShowroomStack.Screen name="CraftsmanDetail" component={CraftsmanDetailScreen} />
+    </ShowroomStack.Navigator>
   )
 }
 
-const $tabBar: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  backgroundColor: colors.background,
-  borderTopColor: colors.transparent,
-})
+function PostsStackNavigator() {
+  return (
+    <PostsStack.Navigator screenOptions={{ headerShown: false }}>
+      <PostsStack.Screen name="PostsList" component={PostsScreen} />
+      <PostsStack.Screen name="PostDetail" component={PostDetailScreen} />
+    </PostsStack.Navigator>
+  )
+}
 
-const $tabBarItem: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  paddingTop: spacing.md,
-})
+/**
+ * This is the main navigator for the Craftsman marketplace screens with a bottom tab bar.
+ */
+export function DemoNavigator() {
+  const { bottom } = useSafeAreaInsets()
+  const colors = useThemeStore((state) => state.theme.colors)
 
-const $tabBarLabel: ThemedStyle<TextStyle> = ({ colors, typography }) => ({
-  fontSize: 12,
-  fontFamily: typography.primary.medium,
-  lineHeight: 16,
-  color: colors.text,
-})
+  return (
+    <Tab.Navigator
+      initialRouteName="Home"
+      screenOptions={{
+        headerShown: false,
+        tabBarHideOnKeyboard: true,
+        tabBarStyle: [styles.tabBar, { height: bottom + 70 }],
+        tabBarActiveTintColor: colors.tint,
+        tabBarInactiveTintColor: colors.textDim,
+        tabBarLabelStyle: styles.tabBarLabel,
+        tabBarItemStyle: styles.tabBarItem,
+      }}
+    >
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarLabel: "Home",
+          tabBarIcon: ({ focused }) => (
+            <Icon icon="home" color={focused ? colors.tint : colors.tintInactive} size={24} />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Showroom"
+        component={ShowroomStackNavigator}
+        options={{
+          tabBarLabel: "Showroom",
+          tabBarIcon: ({ focused }) => (
+            <Icon icon="grid" color={focused ? colors.tint : colors.tintInactive} size={24} />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Posts"
+        component={PostsStackNavigator}
+        options={{
+          tabBarLabel: "Posts",
+          tabBarIcon: ({ focused }) => (
+            <Icon icon="document" color={focused ? colors.tint : colors.tintInactive} size={24} />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Account"
+        component={AccountScreen}
+        options={{
+          tabBarLabel: "Account",
+          tabBarIcon: ({ focused }) => (
+            <Icon icon="user" color={focused ? colors.tint : colors.tintInactive} size={24} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  )
+}
+
+const styles = StyleSheet.create((theme) => ({
+  tabBar: {
+    backgroundColor: theme.colors.background,
+    borderTopColor: theme.colors.transparent,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  tabBarItem: {
+    paddingTop: theme.spacing.sm,
+  },
+  tabBarLabel: {
+    fontSize: 12,
+    fontFamily: theme.typography.primary.medium,
+    lineHeight: 16,
+  },
+}))

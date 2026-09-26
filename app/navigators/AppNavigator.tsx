@@ -8,11 +8,11 @@ import { NavigationContainer } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 
 import Config from "@/config"
-import { useAuth } from "@/context/AuthContext"
 import { ErrorBoundary } from "@/screens/ErrorScreen/ErrorBoundary"
 import { LoginScreen } from "@/screens/LoginScreen"
 import { WelcomeScreen } from "@/screens/WelcomeScreen"
-import { useAppTheme } from "@/theme/context"
+import { useAuthStore } from "@/store/auth.store"
+import { useThemeStore } from "@/store/theme.store"
 
 import { DemoNavigator } from "./DemoNavigator"
 import type { AppStackParamList, NavigationProps } from "./navigationTypes"
@@ -28,11 +28,9 @@ const exitRoutes = Config.exitRoutes
 const Stack = createNativeStackNavigator<AppStackParamList>()
 
 const AppStack = () => {
-  const { isAuthenticated } = useAuth()
-
-  const {
-    theme: { colors },
-  } = useAppTheme()
+  const authToken = useAuthStore((state) => state.authToken)
+  const isAuthenticated = !!authToken
+  const colors = useThemeStore((state) => state.theme.colors)
 
   return (
     <Stack.Navigator
@@ -64,7 +62,7 @@ const AppStack = () => {
 }
 
 export const AppNavigator = (props: NavigationProps) => {
-  const { navigationTheme } = useAppTheme()
+  const navigationTheme = useThemeStore((state) => state.navigationTheme)
 
   useBackButtonHandler((routeName) => exitRoutes.includes(routeName))
 

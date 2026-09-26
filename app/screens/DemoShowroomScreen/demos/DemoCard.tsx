@@ -3,15 +3,112 @@ import { AutoImage } from "@/components/AutoImage"
 import { Button } from "@/components/Button"
 import { Card } from "@/components/Card"
 import { Icon } from "@/components/Icon"
+import { useUnistyles } from "react-native-unistyles"
 
 import { DemoDivider } from "../DemoDivider"
 import { Demo } from "./types"
 import { DemoUseCase } from "../DemoUseCase"
 
+function DemoCardCustomComponents() {
+  const { theme } = useUnistyles()
+
+  return (
+    <DemoUseCase
+      name="demoCard:useCase.customComponent.name"
+      description="demoCard:useCase.customComponent.description"
+    >
+      <Card
+        HeadingComponent={
+          <Button
+            preset="reversed"
+            text="HeadingComponent"
+            LeftAccessory={(props) => <Icon style={props.style} icon="ladybug" />}
+          />
+        }
+        ContentComponent={
+          <Button
+            style={{ marginVertical: theme.spacing.sm }}
+            text="ContentComponent"
+            LeftAccessory={(props) => <Icon style={props.style} icon="ladybug" />}
+          />
+        }
+        FooterComponent={
+          <Button
+            preset="reversed"
+            text="FooterComponent"
+            LeftAccessory={(props) => <Icon style={props.style} icon="ladybug" />}
+          />
+        }
+      />
+      <DemoDivider />
+      <Card
+        headingTx="demoCard:useCase.customComponent.rightComponent"
+        verticalAlignment="center"
+        RightComponent={
+          <AutoImage
+            maxWidth={80}
+            maxHeight={60}
+            style={{ alignSelf: "center" }}
+            source={{
+              uri: "https://user-images.githubusercontent.com/1775841/184508739-f90d0ce5-7219-42fd-a91f-3382d016eae0.png",
+            }}
+          />
+        }
+      />
+      <DemoDivider />
+      <Card
+        preset="reversed"
+        headingTx="demoCard:useCase.customComponent.leftComponent"
+        verticalAlignment="center"
+        LeftComponent={
+          <AutoImage
+            maxWidth={80}
+            maxHeight={60}
+            style={{ alignSelf: "center" }}
+            source={{
+              uri: "https://user-images.githubusercontent.com/1775841/184508739-f90d0ce5-7219-42fd-a91f-3382d016eae0.png",
+            }}
+          />
+        }
+      />
+    </DemoUseCase>
+  )
+}
+
+function DemoCardStyleDemo() {
+  const { theme } = useUnistyles()
+
+  return (
+    <DemoUseCase name="demoCard:useCase.style.name" description="demoCard:useCase.style.description">
+      <Card
+        headingTx="demoCard:useCase.style.heading"
+        headingStyle={{ color: theme.colors.error }}
+        contentTx="demoCard:useCase.style.content"
+        contentStyle={{
+          backgroundColor: theme.colors.error,
+          color: theme.colors.palette.neutral100,
+        }}
+        footerTx="demoCard:useCase.style.footer"
+        footerStyle={{
+          textDecorationLine: "underline line-through",
+          textDecorationStyle: "dashed",
+          color: theme.colors.error,
+          textDecorationColor: theme.colors.error,
+        }}
+        style={{
+          shadowRadius: 5,
+          shadowColor: theme.colors.error,
+          shadowOpacity: 0.5,
+        }}
+      />
+    </DemoUseCase>
+  )
+}
+
 export const DemoCard: Demo = {
   name: "Card",
   description: "demoCard:description",
-  data: ({ theme }) => [
+  data: () => [
     <DemoUseCase
       name="demoCard:useCase.presets.name"
       description="demoCard:useCase.presets.description"
@@ -89,91 +186,8 @@ export const DemoCard: Demo = {
       />
     </DemoUseCase>,
 
-    <DemoUseCase
-      name="demoCard:useCase.customComponent.name"
-      description="demoCard:useCase.customComponent.description"
-    >
-      <Card
-        HeadingComponent={
-          <Button
-            preset="reversed"
-            text="HeadingComponent"
-            LeftAccessory={(props) => <Icon style={props.style} icon="ladybug" />}
-          />
-        }
-        ContentComponent={
-          <Button
-            style={{ marginVertical: theme.spacing.sm }}
-            text="ContentComponent"
-            LeftAccessory={(props) => <Icon style={props.style} icon="ladybug" />}
-          />
-        }
-        FooterComponent={
-          <Button
-            preset="reversed"
-            text="FooterComponent"
-            LeftAccessory={(props) => <Icon style={props.style} icon="ladybug" />}
-          />
-        }
-      />
-      <DemoDivider />
-      <Card
-        headingTx="demoCard:useCase.customComponent.rightComponent"
-        verticalAlignment="center"
-        RightComponent={
-          <AutoImage
-            maxWidth={80}
-            maxHeight={60}
-            style={{ alignSelf: "center" }}
-            source={{
-              uri: "https://user-images.githubusercontent.com/1775841/184508739-f90d0ce5-7219-42fd-a91f-3382d016eae0.png",
-            }}
-          />
-        }
-      />
-      <DemoDivider />
-      <Card
-        preset="reversed"
-        headingTx="demoCard:useCase.customComponent.leftComponent"
-        verticalAlignment="center"
-        LeftComponent={
-          <AutoImage
-            maxWidth={80}
-            maxHeight={60}
-            style={{ alignSelf: "center" }}
-            source={{
-              uri: "https://user-images.githubusercontent.com/1775841/184508739-f90d0ce5-7219-42fd-a91f-3382d016eae0.png",
-            }}
-          />
-        }
-      />
-    </DemoUseCase>,
+    <DemoCardCustomComponents />,
 
-    <DemoUseCase
-      name="demoCard:useCase.style.name"
-      description="demoCard:useCase.style.description"
-    >
-      <Card
-        headingTx="demoCard:useCase.style.heading"
-        headingStyle={{ color: theme.colors.error }}
-        contentTx="demoCard:useCase.style.content"
-        contentStyle={{
-          backgroundColor: theme.colors.error,
-          color: theme.colors.palette.neutral100,
-        }}
-        footerTx="demoCard:useCase.style.footer"
-        footerStyle={{
-          textDecorationLine: "underline line-through",
-          textDecorationStyle: "dashed",
-          color: theme.colors.error,
-          textDecorationColor: theme.colors.error,
-        }}
-        style={{
-          shadowRadius: 5,
-          shadowColor: theme.colors.error,
-          shadowOpacity: 0.5,
-        }}
-      />
-    </DemoUseCase>,
+    <DemoCardStyleDemo />,
   ],
 }

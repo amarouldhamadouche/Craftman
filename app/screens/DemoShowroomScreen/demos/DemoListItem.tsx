@@ -1,13 +1,13 @@
 /* eslint-disable react/jsx-key */
-import { TextStyle, View, ViewStyle } from "react-native"
+import { View } from "react-native"
 import { FlatList } from "react-native-gesture-handler"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 
 import { Icon } from "@/components/Icon"
 import { ListItem } from "@/components/ListItem"
 import { Text } from "@/components/Text"
 import { translate } from "@/i18n/translate"
 import { $styles } from "@/theme/styles"
-import type { ThemedStyle } from "@/theme/types"
 
 import { DemoDivider } from "../DemoDivider"
 import { Demo } from "./types"
@@ -18,38 +18,75 @@ const listData =
     .split(".")
     .map((item) => item.trim())
 
-const $customLeft: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  backgroundColor: colors.error,
-  flexGrow: 0,
-  flexBasis: 60,
-  height: "100%",
-  flexWrap: "wrap",
-  overflow: "hidden",
-})
+function CustomLeftIcons() {
+  const { theme } = useUnistyles()
 
-const $customTextStyle: ThemedStyle<TextStyle> = ({ colors }) => ({
-  color: colors.error,
-})
+  return (
+    <View style={[$styles.row, styles.customLeft, { marginEnd: theme.spacing.md }]}>
+      {Array.from({ length: 9 }, (x, i) => i).map((i) => (
+        <Icon key={i} icon="ladybug" color={theme.colors.palette.neutral100} size={20} />
+      ))}
+    </View>
+  )
+}
 
-const $customTouchableStyle: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  backgroundColor: colors.error,
-})
+function CustomRightIcons() {
+  const { theme } = useUnistyles()
 
-const $customContainerStyle: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  borderTopWidth: 5,
-  borderTopColor: colors.palette.neutral100,
-})
+  return (
+    <View style={[$styles.row, styles.customLeft, { marginStart: theme.spacing.md }]}>
+      {Array.from({ length: 9 }, (x, i) => i).map((i) => (
+        <Icon key={i} icon="ladybug" color={theme.colors.palette.neutral100} size={20} />
+      ))}
+    </View>
+  )
+}
 
-const $listStyle: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
-  height: 148,
-  paddingHorizontal: spacing.xs,
-  backgroundColor: colors.palette.neutral200,
-})
+function StyledListItemExamples() {
+  const { theme } = useUnistyles()
+
+  return (
+    <>
+      <ListItem topSeparator textStyle={styles.customTextStyle}>
+        {translate("demoListItem:useCase.styling.styledText")}
+      </ListItem>
+
+      <ListItem
+        topSeparator
+        textStyle={{ color: theme.colors.palette.neutral100 }}
+        style={styles.customTouchableStyle}
+      >
+        {translate("demoListItem:useCase.styling.styledText")}
+      </ListItem>
+
+      <ListItem
+        topSeparator
+        textStyle={{ color: theme.colors.palette.neutral100 }}
+        style={styles.customTouchableStyle}
+        containerStyle={styles.customContainerStyle}
+      >
+        {translate("demoListItem:useCase.styling.styledContainer")}
+      </ListItem>
+      <ListItem
+        topSeparator
+        textStyle={{ color: theme.colors.palette.neutral100 }}
+        style={styles.customTouchableStyle}
+        containerStyle={styles.customContainerStyle}
+        rightIcon="ladybug"
+        leftIcon="ladybug"
+        rightIconColor={theme.colors.palette.neutral100}
+        leftIconColor={theme.colors.palette.neutral100}
+      >
+        {translate("demoListItem:useCase.styling.tintedIcons")}
+      </ListItem>
+    </>
+  )
+}
 
 export const DemoListItem: Demo = {
   name: "ListItem",
   description: "demoListItem:description",
-  data: ({ theme, themed }) => [
+  data: () => [
     <DemoUseCase
       name="demoListItem:useCase.height.name"
       description="demoListItem:useCase.height.description"
@@ -107,30 +144,11 @@ export const DemoListItem: Demo = {
       name="demoListItem:useCase.customLeftRight.name"
       description="demoListItem:useCase.customLeftRight.description"
     >
-      <ListItem
-        topSeparator
-        LeftComponent={
-          <View style={themed([$styles.row, $customLeft, { marginEnd: theme.spacing.md }])}>
-            {Array.from({ length: 9 }, (x, i) => i).map((i) => (
-              <Icon key={i} icon="ladybug" color={theme.colors.palette.neutral100} size={20} />
-            ))}
-          </View>
-        }
-      >
+      <ListItem topSeparator LeftComponent={<CustomLeftIcons />}>
         {translate("demoListItem:useCase.customLeftRight.customLeft")}
       </ListItem>
 
-      <ListItem
-        topSeparator
-        bottomSeparator
-        RightComponent={
-          <View style={themed([$styles.row, $customLeft, { marginStart: theme.spacing.md }])}>
-            {Array.from({ length: 9 }, (x, i) => i).map((i) => (
-              <Icon key={i} icon="ladybug" color={theme.colors.palette.neutral100} size={20} />
-            ))}
-          </View>
-        }
-      >
+      <ListItem topSeparator bottomSeparator RightComponent={<CustomRightIcons />}>
         {translate("demoListItem:useCase.customLeftRight.customRight")}
       </ListItem>
     </DemoUseCase>,
@@ -159,7 +177,7 @@ export const DemoListItem: Demo = {
       name="demoListItem:useCase.listIntegration.name"
       description="demoListItem:useCase.listIntegration.description"
     >
-      <View style={themed($listStyle)}>
+      <View style={styles.listStyle}>
         <FlatList<string>
           data={listData}
           keyExtractor={(item, index) => `${item}-${index}`}
@@ -179,38 +197,33 @@ export const DemoListItem: Demo = {
       name="demoListItem:useCase.styling.name"
       description="demoListItem:useCase.styling.description"
     >
-      <ListItem topSeparator textStyle={themed($customTextStyle)}>
-        {translate("demoListItem:useCase.styling.styledText")}
-      </ListItem>
-
-      <ListItem
-        topSeparator
-        textStyle={{ color: theme.colors.palette.neutral100 }}
-        style={themed($customTouchableStyle)}
-      >
-        {translate("demoListItem:useCase.styling.styledText")}
-      </ListItem>
-
-      <ListItem
-        topSeparator
-        textStyle={{ color: theme.colors.palette.neutral100 }}
-        style={themed($customTouchableStyle)}
-        containerStyle={themed($customContainerStyle)}
-      >
-        {translate("demoListItem:useCase.styling.styledContainer")}
-      </ListItem>
-      <ListItem
-        topSeparator
-        textStyle={{ color: theme.colors.palette.neutral100 }}
-        style={themed($customTouchableStyle)}
-        containerStyle={themed($customContainerStyle)}
-        rightIcon="ladybug"
-        leftIcon="ladybug"
-        rightIconColor={theme.colors.palette.neutral100}
-        leftIconColor={theme.colors.palette.neutral100}
-      >
-        {translate("demoListItem:useCase.styling.tintedIcons")}
-      </ListItem>
+      <StyledListItemExamples />
     </DemoUseCase>,
   ],
 }
+
+const styles = StyleSheet.create((theme) => ({
+  customLeft: {
+    backgroundColor: theme.colors.error,
+    flexGrow: 0,
+    flexBasis: 60,
+    height: "100%",
+    flexWrap: "wrap",
+    overflow: "hidden",
+  },
+  customTextStyle: {
+    color: theme.colors.error,
+  },
+  customTouchableStyle: {
+    backgroundColor: theme.colors.error,
+  },
+  customContainerStyle: {
+    borderTopWidth: 5,
+    borderTopColor: theme.colors.palette.neutral100,
+  },
+  listStyle: {
+    height: 148,
+    paddingHorizontal: theme.spacing.xs,
+    backgroundColor: theme.colors.palette.neutral200,
+  },
+}))

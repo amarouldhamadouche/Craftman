@@ -9,10 +9,20 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack"
 
 // Demo Tab Navigator types
 export type DemoTabParamList = {
-  DemoCommunity: undefined
-  DemoShowroom: { queryIndex?: string; itemIndex?: string }
-  DemoDebug: undefined
-  DemoPodcastList: undefined
+  Home: undefined
+  Showroom: NavigatorScreenParams<ShowroomStackParamList> | undefined
+  Posts: NavigatorScreenParams<PostsStackParamList> | undefined
+  Account: undefined
+}
+
+export type ShowroomStackParamList = {
+  ShowroomList: undefined
+  CraftsmanDetail: { craftsmanId: string }
+}
+
+export type PostsStackParamList = {
+  PostsList: undefined
+  PostDetail: { postId: string }
 }
 
 // App Stack Navigator types
@@ -32,6 +42,16 @@ export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStack
 export type DemoTabScreenProps<T extends keyof DemoTabParamList> = CompositeScreenProps<
   BottomTabScreenProps<DemoTabParamList, T>,
   AppStackScreenProps<keyof AppStackParamList>
+>
+
+export type ShowroomStackScreenProps<T extends keyof ShowroomStackParamList> = NativeStackScreenProps<
+  ShowroomStackParamList,
+  T
+>
+
+export type PostsStackScreenProps<T extends keyof PostsStackParamList> = NativeStackScreenProps<
+  PostsStackParamList,
+  T
 >
 
 export interface NavigationProps extends Partial<

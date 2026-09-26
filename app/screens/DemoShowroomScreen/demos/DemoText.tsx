@@ -1,15 +1,53 @@
 /* eslint-disable react/jsx-key, react-native/no-inline-styles */
 import { Text } from "@/components/Text"
 import { translate } from "@/i18n/translate"
+import { useUnistyles } from "react-native-unistyles"
 
 import { DemoDivider } from "../DemoDivider"
 import { Demo } from "./types"
 import { DemoUseCase } from "../DemoUseCase"
 
+function DemoTextStyleDemo() {
+  const { theme } = useUnistyles()
+
+  return (
+    <DemoUseCase
+      name="demoText:useCase.styling.name"
+      description="demoText:useCase.styling.description"
+    >
+      <Text>
+        <Text style={{ color: theme.colors.error }}>
+          {translate("demoText:useCase.styling.text")}
+        </Text>
+        {` `}
+        <Text
+          style={{
+            color: theme.colors.palette.neutral100,
+            backgroundColor: theme.colors.error,
+          }}
+        >
+          {translate("demoText:useCase.styling.text2")}
+        </Text>
+        {` `}
+        <Text
+          style={{
+            textDecorationLine: "underline line-through",
+            textDecorationStyle: "dashed",
+            color: theme.colors.error,
+            textDecorationColor: theme.colors.error,
+          }}
+        >
+          {translate("demoText:useCase.styling.text3")}
+        </Text>
+      </Text>
+    </DemoUseCase>
+  )
+}
+
 export const DemoText: Demo = {
   name: "Text",
   description: "demoText:description",
-  data: ({ theme }) => [
+  data: () => [
     <DemoUseCase
       name="demoText:useCase.presets.name"
       description="demoText:useCase.presets.description"
@@ -108,35 +146,6 @@ export const DemoText: Demo = {
       </Text>
     </DemoUseCase>,
 
-    <DemoUseCase
-      name="demoText:useCase.styling.name"
-      description="demoText:useCase.styling.description"
-    >
-      <Text>
-        <Text style={{ color: theme.colors.error }}>
-          {translate("demoText:useCase.styling.text")}
-        </Text>
-        {` `}
-        <Text
-          style={{
-            color: theme.colors.palette.neutral100,
-            backgroundColor: theme.colors.error,
-          }}
-        >
-          {translate("demoText:useCase.styling.text2")}
-        </Text>
-        {` `}
-        <Text
-          style={{
-            textDecorationLine: "underline line-through",
-            textDecorationStyle: "dashed",
-            color: theme.colors.error,
-            textDecorationColor: theme.colors.error,
-          }}
-        >
-          {translate("demoText:useCase.styling.text3")}
-        </Text>
-      </Text>
-    </DemoUseCase>,
+    <DemoTextStyleDemo />,
   ],
 }

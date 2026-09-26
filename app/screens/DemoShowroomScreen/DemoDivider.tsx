@@ -1,8 +1,6 @@
 /* eslint-disable  react-native/no-inline-styles */
 import { StyleProp, View, ViewStyle } from "react-native"
-
-import { useAppTheme } from "@/theme/context"
-import type { ThemedStyle } from "@/theme/types"
+import { StyleSheet } from "react-native-unistyles"
 
 interface DemoDividerProps {
   type?: "vertical" | "horizontal"
@@ -17,7 +15,6 @@ interface DemoDividerProps {
  */
 export function DemoDivider(props: DemoDividerProps) {
   const { type = "horizontal", size = 10, line = false, style: $styleOverride } = props
-  const { themed } = useAppTheme()
 
   return (
     <View
@@ -31,7 +28,7 @@ export function DemoDivider(props: DemoDividerProps) {
       {line && (
         <View
           style={[
-            themed($line),
+            styles.line,
             type === "horizontal" && {
               width: 150,
               height: 1,
@@ -56,9 +53,11 @@ const $divider: ViewStyle = {
   flexShrink: 0,
 }
 
-const $line: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  backgroundColor: colors.border,
-  position: "absolute",
-  left: "50%",
-  top: "50%",
-})
+const styles = StyleSheet.create((theme) => ({
+  line: {
+    backgroundColor: theme.colors.border,
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+  },
+}))

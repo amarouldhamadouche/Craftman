@@ -1,4 +1,4 @@
-import { ComponentType, FC, useMemo } from "react"
+import { ComponentType, FC } from "react"
 import {
   GestureResponderEvent,
   ImageStyle,
@@ -12,10 +12,9 @@ import {
   ViewProps,
   ViewStyle,
 } from "react-native"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 
-import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
-import type { ThemedStyle } from "@/theme/types"
 
 import { Text, TextProps } from "../Text"
 
@@ -142,25 +141,19 @@ export function Toggle<T>(props: ToggleProps<T>) {
     ...WrapperProps
   } = props
 
-  const {
-    theme: { colors },
-    themed,
-  } = useAppTheme()
+  const { theme } = useUnistyles()
 
   const disabled = editable === false || status === "disabled" || props.disabled
 
-  const Wrapper = useMemo(
-    () => (disabled ? View : TouchableOpacity) as ComponentType<TouchableOpacityProps | ViewProps>,
-    [disabled],
-  )
+  const Wrapper = disabled ? View : TouchableOpacity
 
   const $containerStyles = [$containerStyleOverride]
   const $inputWrapperStyles = [$styles.row, $inputWrapper, $inputWrapperStyleOverride]
-  const $helperStyles = themed([
-    $helper,
-    status === "error" && { color: colors.error },
+  const $helperStyles = [
+    styles.helper,
+    status === "error" && { color: theme.colors.error },
     HelperTextProps?.style,
-  ])
+  ]
 
   /**
    * @param {GestureResponderEvent} e - The event object.
@@ -224,21 +217,18 @@ function FieldLabel<T>(props: ToggleProps<T>) {
     labelStyle: $labelStyleOverride,
   } = props
 
-  const {
-    theme: { colors },
-    themed,
-  } = useAppTheme()
+  const { theme } = useUnistyles()
 
   if (!label && !labelTx && !LabelTextProps?.children) return null
 
-  const $labelStyle = themed([
-    $label,
-    status === "error" && { color: colors.error },
-    labelPosition === "right" && $labelRight,
-    labelPosition === "left" && $labelLeft,
+  const $labelStyle = [
+    styles.label,
+    status === "error" && { color: theme.colors.error },
+    labelPosition === "right" && styles.labelRight,
+    labelPosition === "left" && styles.labelLeft,
     $labelStyleOverride,
     LabelTextProps?.style,
-  ])
+  ]
 
   return (
     <Text
@@ -268,18 +258,17 @@ export const $inputOuterBase: ViewStyle = {
   flexDirection: "row",
 }
 
-const $helper: ThemedStyle<TextStyle> = ({ spacing }) => ({
-  marginTop: spacing.xs,
-})
-
-const $label: TextStyle = {
-  flex: 1,
-}
-
-const $labelRight: ThemedStyle<TextStyle> = ({ spacing }) => ({
-  marginStart: spacing.md,
-})
-
-const $labelLeft: ThemedStyle<TextStyle> = ({ spacing }) => ({
-  marginEnd: spacing.md,
-})
+const styles = StyleSheet.create((theme) => ({
+  helper: {
+    marginTop: theme.spacing.xs,
+  },
+  label: {
+    flex: 1,
+  },
+  labelRight: {
+    marginStart: theme.spacing.md,
+  },
+  labelLeft: {
+    marginEnd: theme.spacing.md,
+  },
+}))

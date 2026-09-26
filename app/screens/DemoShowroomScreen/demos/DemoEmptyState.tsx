@@ -1,14 +1,48 @@
 /* eslint-disable react/jsx-key, react-native/no-inline-styles */
 import { EmptyState } from "@/components/EmptyState"
+import { useUnistyles } from "react-native-unistyles"
 
 import { DemoDivider } from "../DemoDivider"
 import { Demo } from "./types"
 import { DemoUseCase } from "../DemoUseCase"
 
+function DemoEmptyStateStyleDemo() {
+  const { theme } = useUnistyles()
+
+  return (
+    <DemoUseCase
+      name="demoEmptyState:useCase.styling.name"
+      description="demoEmptyState:useCase.styling.description"
+    >
+      <EmptyState
+        preset="generic"
+        style={{ backgroundColor: theme.colors.error, paddingVertical: 20 }}
+        imageStyle={{ height: 75, tintColor: theme.colors.palette.neutral100 }}
+        ImageProps={{ resizeMode: "contain" }}
+        headingStyle={{
+          color: theme.colors.palette.neutral100,
+          textDecorationLine: "underline",
+          textDecorationColor: theme.colors.palette.neutral100,
+        }}
+        contentStyle={{
+          color: theme.colors.palette.neutral100,
+          textDecorationLine: "underline",
+          textDecorationColor: theme.colors.palette.neutral100,
+        }}
+        buttonStyle={{ alignSelf: "center", backgroundColor: theme.colors.palette.neutral100 }}
+        buttonTextStyle={{ color: theme.colors.error }}
+        ButtonProps={{
+          preset: "reversed",
+        }}
+      />
+    </DemoUseCase>
+  )
+}
+
 export const DemoEmptyState: Demo = {
   name: "EmptyState",
   description: "demoEmptyState:description",
-  data: ({ theme }) => [
+  data: () => [
     <DemoUseCase
       name="demoEmptyState:useCase.presets.name"
       description="demoEmptyState:useCase.presets.description"
@@ -46,31 +80,6 @@ export const DemoEmptyState: Demo = {
       />
     </DemoUseCase>,
 
-    <DemoUseCase
-      name="demoEmptyState:useCase.styling.name"
-      description="demoEmptyState:useCase.styling.description"
-    >
-      <EmptyState
-        preset="generic"
-        style={{ backgroundColor: theme.colors.error, paddingVertical: 20 }}
-        imageStyle={{ height: 75, tintColor: theme.colors.palette.neutral100 }}
-        ImageProps={{ resizeMode: "contain" }}
-        headingStyle={{
-          color: theme.colors.palette.neutral100,
-          textDecorationLine: "underline",
-          textDecorationColor: theme.colors.palette.neutral100,
-        }}
-        contentStyle={{
-          color: theme.colors.palette.neutral100,
-          textDecorationLine: "underline",
-          textDecorationColor: theme.colors.palette.neutral100,
-        }}
-        buttonStyle={{ alignSelf: "center", backgroundColor: theme.colors.palette.neutral100 }}
-        buttonTextStyle={{ color: theme.colors.error }}
-        ButtonProps={{
-          preset: "reversed",
-        }}
-      />
-    </DemoUseCase>,
+    <DemoEmptyStateStyleDemo />,
   ],
 }

@@ -1,82 +1,150 @@
-/**
- * This Api class lets you define an API endpoint and methods to request
- * data and process it.
- *
- * See the [Backend API Integration](https://docs.infinite.red/ignite-cli/boilerplate/app/services/#backend-api-integration)
- * documentation for more details.
- */
-import { ApiResponse, ApisauceInstance, create } from "apisauce"
-
+import { fetch } from "react-native-nitro-fetch"
 import Config from "@/config"
-import type { EpisodeItem } from "@/services/api/types"
+import { getGeneralApiProblem, GeneralApiProblem } from "./apiProblem"
 
-import { GeneralApiProblem, getGeneralApiProblem } from "./apiProblem"
-import type { ApiConfig, ApiFeedResponse } from "./types"
+export interface ApiConfig {
+  url: string
+  timeout: number
+}
 
-/**
- * Configuring the apisauce instance.
- */
 export const DEFAULT_API_CONFIG: ApiConfig = {
   url: Config.API_URL,
   timeout: 10000,
 }
 
-/**
- * Manages all requests to the API. You can use this class to build out
- * various requests that you need to call from your backend API.
- */
-export class Api {
-  apisauce: ApisauceInstance
-  config: ApiConfig
+export type ApiResponse<T> =
+  | { kind: "ok"; data: T }
+  | GeneralApiProblem
 
-  /**
-   * Set up our API instance. Keep this lightweight!
-   */
+function createTimeoutSignal(ms: number): { signal: AbortSignal; clear: () => void } {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), ms)
+  return {
+    signal: controller.signal,
+    clear: () => clearTimeout(timer),
+  }
+}
+
+class Api {
+  private config: ApiConfig
+
   constructor(config: ApiConfig = DEFAULT_API_CONFIG) {
     this.config = config
-    this.apisauce = create({
-      baseURL: this.config.url,
-      timeout: this.config.timeout,
-      headers: {
-        Accept: "application/json",
-      },
-    })
   }
 
-  /**
-   * Gets a list of recent React Native Radio episodes.
-   */
-  async getEpisodes(): Promise<{ kind: "ok"; episodes: EpisodeItem[] } | GeneralApiProblem> {
-    // make the api call
-    const response: ApiResponse<ApiFeedResponse> = await this.apisauce.get(
-      `api.json?rss_url=https%3A%2F%2Ffeeds.simplecast.com%2FhEI_f9Dx`,
-    )
+  private buildUrl(path: string, params?: Record<string, string>): string {
+    const url = new URL(path, this.config.url)
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.append(key, value)
+      })
+    }
+    return url.toString()
+  }
 
-    // the typical ways to die when calling an api
-    if (!response.ok) {
-      const problem = getGeneralApiProblem(response)
-      if (problem) return problem
+  async get<T>(path: string, params?: Record<string, string>): Promise<ApiResponse<T>> {
+    return this.request<T>("GET", path, params)
+  }
+
+  async post<T>(path: string, body?: unknown): Promise<ApiResponse<T>> {
+    return this.request<T>("POST", path, undefined, body)
+  }
+
+  async put<T>(path: string, body?: unknown): Promise<ApiResponse<T>> {
+    return this.request<T>("PUT", path, undefined, body)
+  }
+
+  async delete<T>(path: string): Promise<ApiResponse<T>> {
+    return this.request<T>("DELETE", path)
+  }
+
+  async postForm<T>(
+    path: string,
+    fields: Record<string, string | File | Blob>,
+  ): Promise<ApiResponse<T>> {
+    let response: Response
+    const { signal, clear } = createTimeoutSignal(this.config.timeout)
+
+    try {
+      const formData = new FormData()
+      Object.entries(fields).forEach(([key, value]) => formData.append(key, value))
+
+      response = await fetch(this.buildUrl(path), {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          // Do NOT set Content-Type manually for FormData —
+          // the native layer sets it automatically with the correct multipart boundary
+        },
+        body: formData,
+        signal,
+      })
+      clear()
+    } catch (e) {
+      clear()
+      if (e instanceof Error && e.name === "AbortError") {
+        return { kind: "timeout", temporary: true }
+      }
+      return { kind: "cannot-connect", temporary: true }
     }
 
-    // transform the data into the format we are expecting
+    if (!response.ok) {
+      return getGeneralApiProblem({
+        status: response.status,
+        problem: response.status >= 500 ? "SERVER_ERROR" : "CLIENT_ERROR",
+      })
+    }
+
     try {
-      const rawData = response.data
+      const data: T = await response.json()
+      return { kind: "ok", data }
+    } catch {
+      return { kind: "bad-data" }
+    }
+  }
 
-      // This is where we transform the data into the shape we expect for our model.
-      const episodes: EpisodeItem[] =
-        rawData?.items.map((raw) => ({
-          ...raw,
-        })) ?? []
+  private async request<T>(
+    method: string,
+    path: string,
+    params?: Record<string, string>,
+    body?: unknown,
+  ): Promise<ApiResponse<T>> {
+    let response: Response
+    const { signal, clear } = createTimeoutSignal(this.config.timeout)
 
-      return { kind: "ok", episodes }
+    try {
+      response = await fetch(this.buildUrl(path, params), {
+        method,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: body ? JSON.stringify(body) : undefined,
+        signal,
+      })
+      clear()
     } catch (e) {
-      if (__DEV__ && e instanceof Error) {
-        console.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
+      clear()
+      if (e instanceof Error && e.name === "AbortError") {
+        return { kind: "timeout", temporary: true }
       }
+      return { kind: "cannot-connect", temporary: true }
+    }
+
+    if (!response.ok) {
+      return getGeneralApiProblem({
+        status: response.status,
+        problem: response.status >= 500 ? "SERVER_ERROR" : "CLIENT_ERROR",
+      })
+    }
+
+    try {
+      const data: T = await response.json()
+      return { kind: "ok", data }
+    } catch {
       return { kind: "bad-data" }
     }
   }
 }
 
-// Singleton instance of the API for convenience
 export const api = new Api()

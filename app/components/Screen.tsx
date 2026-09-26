@@ -16,7 +16,7 @@ import {
   type KeyboardAwareScrollViewRef,
 } from "react-native-keyboard-controller"
 
-import { useAppTheme } from "@/theme/context"
+import { useThemeStore } from "@/store/theme.store"
 import { $styles } from "@/theme/styles"
 import { ExtendedEdge, useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 
@@ -244,7 +244,7 @@ export function Screen(props: ScreenProps) {
   const {
     theme: { colors },
     themeContext,
-  } = useAppTheme()
+  } = useThemeStore()
   const {
     backgroundColor,
     KeyboardAvoidingViewProps,

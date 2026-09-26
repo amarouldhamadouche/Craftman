@@ -7,10 +7,9 @@ import {
   View,
   ViewStyle,
 } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 
-import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
-import type { ThemedStyle } from "@/theme/types"
 
 import { Icon, IconTypes } from "./Icon"
 import { Text, TextProps } from "./Text"
@@ -130,7 +129,6 @@ export const ListItem = forwardRef<View, ListItemProps>(function ListItem(
     containerStyle: $containerStyleOverride,
     ...TouchableOpacityProps
   } = props
-  const { themed } = useAppTheme()
 
   const isTouchable =
     TouchableOpacityProps.onPress !== undefined ||
@@ -138,11 +136,11 @@ export const ListItem = forwardRef<View, ListItemProps>(function ListItem(
     TouchableOpacityProps.onPressOut !== undefined ||
     TouchableOpacityProps.onLongPress !== undefined
 
-  const $textStyles = [$textStyle, $textStyleOverride, TextProps?.style]
+  const $textStyles = [styles.text, $textStyleOverride, TextProps?.style]
 
   const $containerStyles = [
-    topSeparator && $separatorTop,
-    bottomSeparator && $separatorBottom,
+    topSeparator && styles.separatorTop,
+    bottomSeparator && styles.separatorBottom,
     $containerStyleOverride,
   ]
 
@@ -151,7 +149,7 @@ export const ListItem = forwardRef<View, ListItemProps>(function ListItem(
   const Wrapper = isTouchable ? TouchableOpacity : View
 
   return (
-    <View ref={ref} style={themed($containerStyles)}>
+    <View ref={ref} style={$containerStyles}>
       <Wrapper {...TouchableOpacityProps} style={$touchableStyles}>
         <ListItemAction
           side="left"
@@ -161,7 +159,7 @@ export const ListItem = forwardRef<View, ListItemProps>(function ListItem(
           Component={LeftComponent}
         />
 
-        <Text {...TextProps} tx={tx} text={text} txOptions={txOptions} style={themed($textStyles)}>
+        <Text {...TextProps} tx={tx} text={text} txOptions={txOptions} style={$textStyles}>
           {children}
         </Text>
 
@@ -183,9 +181,6 @@ export const ListItem = forwardRef<View, ListItemProps>(function ListItem(
  */
 function ListItemAction(props: ListItemActionProps) {
   const { icon, Component, iconColor, size, side } = props
-  const { themed } = useAppTheme()
-
-  const $iconContainerStyles = [$iconContainer]
 
   if (Component) return Component
 
@@ -195,35 +190,18 @@ function ListItemAction(props: ListItemActionProps) {
         size={24}
         icon={icon}
         color={iconColor}
-        containerStyle={themed([
-          $iconContainerStyles,
-          side === "left" && $iconContainerLeft,
-          side === "right" && $iconContainerRight,
+        containerStyle={[
+          $iconContainer,
+          side === "left" && styles.iconContainerLeft,
+          side === "right" && styles.iconContainerRight,
           { height: size },
-        ])}
+        ]}
       />
     )
   }
 
   return null
 }
-
-const $separatorTop: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  borderTopWidth: 1,
-  borderTopColor: colors.separator,
-})
-
-const $separatorBottom: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  borderBottomWidth: 1,
-  borderBottomColor: colors.separator,
-})
-
-const $textStyle: ThemedStyle<TextStyle> = ({ spacing }) => ({
-  paddingVertical: spacing.xs,
-  alignSelf: "center",
-  flexGrow: 1,
-  flexShrink: 1,
-})
 
 const $touchableStyle: ViewStyle = {
   alignItems: "flex-start",
@@ -234,10 +212,26 @@ const $iconContainer: ViewStyle = {
   alignItems: "center",
   flexGrow: 0,
 }
-const $iconContainerLeft: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  marginEnd: spacing.md,
-})
 
-const $iconContainerRight: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  marginStart: spacing.md,
-})
+const styles = StyleSheet.create((theme) => ({
+  separatorTop: {
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.separator,
+  },
+  separatorBottom: {
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.separator,
+  },
+  text: {
+    paddingVertical: theme.spacing.xs,
+    alignSelf: "center",
+    flexGrow: 1,
+    flexShrink: 1,
+  },
+  iconContainerLeft: {
+    marginEnd: theme.spacing.md,
+  },
+  iconContainerRight: {
+    marginStart: theme.spacing.md,
+  },
+}))

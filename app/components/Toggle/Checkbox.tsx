@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from "react"
 import { Image, ImageStyle, Animated, StyleProp, View, ViewStyle } from "react-native"
+import { useUnistyles } from "react-native-unistyles"
 
-import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 
 import { iconRegistry, IconTypes } from "../Icon"
@@ -48,7 +48,7 @@ function CheckboxInput(props: CheckboxInputProps) {
 
   const {
     theme: { colors },
-  } = useAppTheme()
+  } = useUnistyles()
 
   const opacity = useRef(new Animated.Value(0))
 

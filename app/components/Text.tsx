@@ -1,12 +1,11 @@
 import { ReactNode, forwardRef, ForwardedRef } from "react"
 // eslint-disable-next-line no-restricted-imports
 import { StyleProp, Text as RNText, TextProps as RNTextProps, TextStyle } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { TOptions } from "i18next"
 
 import { isRTL, TxKeyPath } from "@/i18n"
 import { translate } from "@/i18n/translate"
-import { useAppTheme } from "@/theme/context"
-import type { ThemedStyle, ThemedStyleArray } from "@/theme/types"
 import { typography } from "@/theme/typography"
 
 type Sizes = keyof typeof $sizeStyles
@@ -58,15 +57,21 @@ export interface TextProps extends RNTextProps {
  */
 export const Text = forwardRef(function Text(props: TextProps, ref: ForwardedRef<RNText>) {
   const { weight, size, tx, txOptions, text, children, style: $styleOverride, ...rest } = props
-  const { themed } = useAppTheme()
-
   const i18nText = tx && translate(tx, txOptions)
   const content = i18nText || text || children
 
   const preset: Presets = props.preset ?? "default"
+  const $presetStyleMap: Record<Presets, TextStyle> = {
+    default: styles.presetDefault,
+    bold: styles.presetBold,
+    heading: styles.presetHeading,
+    subheading: styles.presetSubheading,
+    formLabel: styles.presetFormLabel,
+    formHelper: styles.presetFormHelper,
+  }
   const $styles: StyleProp<TextStyle> = [
     $rtlStyle,
-    themed($presets[preset]),
+    $presetStyleMap[preset],
     weight && $fontWeightStyles[weight],
     size && $sizeStyles[size],
     $styleOverride,
@@ -93,24 +98,43 @@ const $fontWeightStyles = Object.entries(typography.primary).reduce((acc, [weigh
   return { ...acc, [weight]: { fontFamily } }
 }, {}) as Record<Weights, TextStyle>
 
-const $baseStyle: ThemedStyle<TextStyle> = (theme) => ({
-  ...$sizeStyles.sm,
-  ...$fontWeightStyles.normal,
-  color: theme.colors.text,
-})
-
-const $presets: Record<Presets, ThemedStyleArray<TextStyle>> = {
-  default: [$baseStyle],
-  bold: [$baseStyle, { ...$fontWeightStyles.bold }],
-  heading: [
-    $baseStyle,
-    {
-      ...$sizeStyles.xxl,
-      ...$fontWeightStyles.bold,
-    },
-  ],
-  subheading: [$baseStyle, { ...$sizeStyles.lg, ...$fontWeightStyles.medium }],
-  formLabel: [$baseStyle, { ...$fontWeightStyles.medium }],
-  formHelper: [$baseStyle, { ...$sizeStyles.sm, ...$fontWeightStyles.normal }],
-}
 const $rtlStyle: TextStyle = isRTL ? { writingDirection: "rtl" } : {}
+
+const styles = StyleSheet.create((theme) => ({
+  presetDefault: {
+    fontSize: $sizeStyles.sm.fontSize,
+    lineHeight: $sizeStyles.sm.lineHeight,
+    fontFamily: typography.primary.normal,
+    color: theme.colors.text,
+  },
+  presetBold: {
+    fontSize: $sizeStyles.sm.fontSize,
+    lineHeight: $sizeStyles.sm.lineHeight,
+    fontFamily: typography.primary.bold,
+    color: theme.colors.text,
+  },
+  presetHeading: {
+    fontSize: $sizeStyles.xxl.fontSize,
+    lineHeight: $sizeStyles.xxl.lineHeight,
+    fontFamily: typography.primary.bold,
+    color: theme.colors.text,
+  },
+  presetSubheading: {
+    fontSize: $sizeStyles.lg.fontSize,
+    lineHeight: $sizeStyles.lg.lineHeight,
+    fontFamily: typography.primary.medium,
+    color: theme.colors.text,
+  },
+  presetFormLabel: {
+    fontSize: $sizeStyles.sm.fontSize,
+    lineHeight: $sizeStyles.sm.lineHeight,
+    fontFamily: typography.primary.medium,
+    color: theme.colors.text,
+  },
+  presetFormHelper: {
+    fontSize: $sizeStyles.sm.fontSize,
+    lineHeight: $sizeStyles.sm.lineHeight,
+    fontFamily: typography.primary.normal,
+    color: theme.colors.text,
+  },
+}))

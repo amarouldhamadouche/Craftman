@@ -1,8 +1,7 @@
 import { Image, ImageProps, ImageStyle, StyleProp, TextStyle, View, ViewStyle } from "react-native"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 
 import { translate } from "@/i18n/translate"
-import { useAppTheme } from "@/theme/context"
-import type { ThemedStyle } from "@/theme/types"
 
 import { Button, ButtonProps } from "./Button"
 import { Text, TextProps } from "./Text"
@@ -117,11 +116,8 @@ interface EmptyStatePresetItem {
  * @returns {JSX.Element} The rendered `EmptyState` component.
  */
 export function EmptyState(props: EmptyStateProps) {
-  const {
-    theme,
-    themed,
-    theme: { spacing },
-  } = useAppTheme()
+  const { theme } = useUnistyles()
+  const { spacing } = theme
 
   const EmptyStatePresets = {
     generic: {
@@ -171,14 +167,14 @@ export function EmptyState(props: EmptyStateProps) {
     ImageProps?.style,
   ]
   const $headingStyles = [
-    themed($heading),
+    styles.heading,
     isImagePresent && { marginTop: spacing.xxxs },
     (isContentPresent || isButtonPresent) && { marginBottom: spacing.xxxs },
     $headingStyleOverride,
     HeadingTextProps?.style,
   ]
   const $contentStyles = [
-    themed($content),
+    styles.content,
     (isImagePresent || isHeadingPresent) && { marginTop: spacing.xxxs },
     isButtonPresent && { marginBottom: spacing.xxxs },
     $contentStyleOverride,
@@ -238,11 +234,14 @@ export function EmptyState(props: EmptyStateProps) {
 }
 
 const $image: ImageStyle = { alignSelf: "center" }
-const $heading: ThemedStyle<TextStyle> = ({ spacing }) => ({
-  textAlign: "center",
-  paddingHorizontal: spacing.lg,
-})
-const $content: ThemedStyle<TextStyle> = ({ spacing }) => ({
-  textAlign: "center",
-  paddingHorizontal: spacing.lg,
-})
+
+const styles = StyleSheet.create((theme) => ({
+  heading: {
+    textAlign: "center",
+    paddingHorizontal: theme.spacing.lg,
+  },
+  content: {
+    textAlign: "center",
+    paddingHorizontal: theme.spacing.lg,
+  },
+}))

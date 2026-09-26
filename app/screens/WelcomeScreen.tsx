@@ -1,15 +1,14 @@
 import { FC } from "react"
-import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
+import { Image, ImageStyle, View } from "react-native"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 
 import { Button } from "@/components/Button"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
-import { useAuth } from "@/context/AuthContext"
 import { isRTL } from "@/i18n"
 import type { AppStackScreenProps } from "@/navigators/navigationTypes"
-import { useAppTheme } from "@/theme/context"
+import { useAuthStore } from "@/store/auth.store"
 import { $styles } from "@/theme/styles"
-import type { ThemedStyle } from "@/theme/types"
 import { useHeader } from "@/utils/useHeader"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 
@@ -19,10 +18,9 @@ const welcomeFace = require("@assets/images/welcome-face.png")
 interface WelcomeScreenProps extends AppStackScreenProps<"Welcome"> {}
 
 export const WelcomeScreen: FC<WelcomeScreenProps> = function WelcomeScreen(_props) {
-  const { themed, theme } = useAppTheme()
-
+  const { theme } = useUnistyles()
   const { navigation } = _props
-  const { logout } = useAuth()
+  const logout = useAuthStore((state) => state.logout)
 
   function goNext() {
     navigation.navigate("Demo", { screen: "DemoShowroom", params: {} })
@@ -40,11 +38,11 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = function WelcomeScreen(_pro
 
   return (
     <Screen preset="fixed" contentContainerStyle={$styles.flex1}>
-      <View style={themed($topContainer)}>
-        <Image style={themed($welcomeLogo)} source={welcomeLogo} resizeMode="contain" />
+      <View style={styles.topContainer}>
+        <Image style={styles.welcomeLogo} source={welcomeLogo} resizeMode="contain" />
         <Text
           testID="welcome-heading"
-          style={themed($welcomeHeading)}
+          style={styles.welcomeHeading}
           tx="welcomeScreen:readyForLaunch"
           preset="heading"
         />
@@ -57,7 +55,7 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = function WelcomeScreen(_pro
         />
       </View>
 
-      <View style={themed([$bottomContainer, $bottomContainerInsets])}>
+      <View style={[styles.bottomContainer, $bottomContainerInsets]}>
         <Text tx="welcomeScreen:postscript" size="md" />
 
         <Button
@@ -71,31 +69,6 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = function WelcomeScreen(_pro
   )
 }
 
-const $topContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flexShrink: 1,
-  flexGrow: 1,
-  flexBasis: "57%",
-  justifyContent: "center",
-  paddingHorizontal: spacing.lg,
-})
-
-const $bottomContainer: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
-  flexShrink: 1,
-  flexGrow: 0,
-  flexBasis: "43%",
-  backgroundColor: colors.palette.neutral100,
-  borderTopLeftRadius: 16,
-  borderTopRightRadius: 16,
-  paddingHorizontal: spacing.lg,
-  justifyContent: "space-around",
-})
-
-const $welcomeLogo: ThemedStyle<ImageStyle> = ({ spacing }) => ({
-  height: 88,
-  width: "100%",
-  marginBottom: spacing.xxl,
-})
-
 const $welcomeFace: ImageStyle = {
   height: 169,
   width: 269,
@@ -105,6 +78,30 @@ const $welcomeFace: ImageStyle = {
   transform: [{ scaleX: isRTL ? -1 : 1 }],
 }
 
-const $welcomeHeading: ThemedStyle<TextStyle> = ({ spacing }) => ({
-  marginBottom: spacing.md,
-})
+const styles = StyleSheet.create((theme) => ({
+  topContainer: {
+    flexShrink: 1,
+    flexGrow: 1,
+    flexBasis: "57%",
+    justifyContent: "center",
+    paddingHorizontal: theme.spacing.lg,
+  },
+  bottomContainer: {
+    flexShrink: 1,
+    flexGrow: 0,
+    flexBasis: "43%",
+    backgroundColor: theme.colors.palette.neutral100,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingHorizontal: theme.spacing.lg,
+    justifyContent: "space-around",
+  },
+  welcomeLogo: {
+    height: 88,
+    width: "100%",
+    marginBottom: theme.spacing.xxl,
+  },
+  welcomeHeading: {
+    marginBottom: theme.spacing.md,
+  },
+}))

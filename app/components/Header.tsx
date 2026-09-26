@@ -7,12 +7,11 @@ import {
   View,
   ViewStyle,
 } from "react-native"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 
 import { isRTL } from "@/i18n"
 import { translate } from "@/i18n/translate"
-import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
-import type { ThemedStyle } from "@/theme/types"
 import { ExtendedEdge, useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 
 import { IconTypes, PressableIcon } from "./Icon"
@@ -149,10 +148,8 @@ interface HeaderActionProps {
  * @returns {JSX.Element} The rendered `Header` component.
  */
 export function Header(props: HeaderProps) {
-  const {
-    theme: { colors },
-    themed,
-  } = useAppTheme()
+  const { theme } = useUnistyles()
+  const { colors } = theme
   const {
     backgroundColor = colors.background,
     LeftActionComponent,
@@ -202,7 +199,7 @@ export function Header(props: HeaderProps) {
           <View
             style={[
               $titleWrapperPointerEvents,
-              titleMode === "center" && themed($titleWrapperCenter),
+              titleMode === "center" && styles.titleWrapperCenter,
               titleMode === "flex" && $titleWrapperFlex,
               $titleContainerStyleOverride,
             ]}
@@ -237,7 +234,6 @@ export function Header(props: HeaderProps) {
  */
 function HeaderAction(props: HeaderActionProps) {
   const { backgroundColor, icon, text, tx, txOptions, onPress, ActionComponent, iconColor } = props
-  const { themed } = useAppTheme()
 
   const content = tx ? translate(tx, txOptions) : text
 
@@ -246,12 +242,12 @@ function HeaderAction(props: HeaderActionProps) {
   if (content) {
     return (
       <TouchableOpacity
-        style={themed([$actionTextContainer, { backgroundColor }])}
+        style={[styles.actionTextContainer, { backgroundColor }]}
         onPress={onPress}
         disabled={!onPress}
         activeOpacity={0.8}
       >
-        <Text weight="medium" size="md" text={content} style={themed($actionText)} />
+        <Text weight="medium" size="md" text={content} style={styles.actionText} />
       </TouchableOpacity>
     )
   }
@@ -263,7 +259,7 @@ function HeaderAction(props: HeaderActionProps) {
         icon={icon}
         color={iconColor}
         onPress={onPress}
-        containerStyle={themed([$actionIconContainer, { backgroundColor }])}
+        containerStyle={[styles.actionIconContainer, { backgroundColor }]}
         style={isRTL ? { transform: [{ rotate: "180deg" }] } : {}}
       />
     )
@@ -286,28 +282,6 @@ const $title: TextStyle = {
   textAlign: "center",
 }
 
-const $actionTextContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flexGrow: 0,
-  alignItems: "center",
-  justifyContent: "center",
-  height: "100%",
-  paddingHorizontal: spacing.md,
-  zIndex: 2,
-})
-
-const $actionText: ThemedStyle<TextStyle> = ({ colors }) => ({
-  color: colors.tint,
-})
-
-const $actionIconContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flexGrow: 0,
-  alignItems: "center",
-  justifyContent: "center",
-  height: "100%",
-  paddingHorizontal: spacing.md,
-  zIndex: 2,
-})
-
 const $actionFillerContainer: ViewStyle = {
   width: 16,
 }
@@ -316,17 +290,38 @@ const $titleWrapperPointerEvents: ViewStyle = {
   pointerEvents: "none",
 }
 
-const $titleWrapperCenter: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  alignItems: "center",
-  justifyContent: "center",
-  height: "100%",
-  width: "100%",
-  position: "absolute",
-  paddingHorizontal: spacing.xxl,
-  zIndex: 1,
-})
-
 const $titleWrapperFlex: ViewStyle = {
   justifyContent: "center",
   flexGrow: 1,
 }
+
+const styles = StyleSheet.create((theme) => ({
+  actionTextContainer: {
+    flexGrow: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+    paddingHorizontal: theme.spacing.md,
+    zIndex: 2,
+  },
+  actionText: {
+    color: theme.colors.tint,
+  },
+  actionIconContainer: {
+    flexGrow: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+    paddingHorizontal: theme.spacing.md,
+    zIndex: 2,
+  },
+  titleWrapperCenter: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+    width: "100%",
+    position: "absolute",
+    paddingHorizontal: theme.spacing.xxl,
+    zIndex: 1,
+  },
+}))

@@ -1,4 +1,4 @@
-import { ComponentType } from "react"
+import { ComponentType, useState } from "react"
 import {
   Pressable,
   PressableProps,
@@ -7,10 +7,10 @@ import {
   TextStyle,
   ViewStyle,
 } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
+import { EaseView } from "react-native-ease"
 
-import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
-import type { ThemedStyle, ThemedStyleArray } from "@/theme/types"
 
 import { Text, TextProps } from "./Text"
 
@@ -83,6 +83,8 @@ export interface ButtonProps extends PressableProps {
    * An optional style override for the disabled state
    */
   disabledStyle?: StyleProp<ViewStyle>
+
+  scale?: number
 }
 
 /**
@@ -114,10 +116,11 @@ export function Button(props: ButtonProps) {
     LeftAccessory,
     disabled,
     disabledStyle: $disabledViewStyleOverride,
+    scale,
     ...rest
   } = props
 
-  const { themed } = useAppTheme()
+  const [pressed, setPressed] = useState<Boolean>(false)
 
   const preset: Presets = props.preset ?? "default"
   /**
@@ -127,9 +130,10 @@ export function Button(props: ButtonProps) {
    */
   function $viewStyle({ pressed }: PressableStateCallbackType): StyleProp<ViewStyle> {
     return [
-      themed($viewPresets[preset]),
+      $styles.row,
+      styles[$viewPresetKeys[preset]],
       $viewStyleOverride,
-      !!pressed && themed([$pressedViewPresets[preset], $pressedViewStyleOverride]),
+      !!pressed && [styles[$pressedViewPresetKeys[preset]], $pressedViewStyleOverride],
       !!disabled && $disabledViewStyleOverride,
     ]
   }
@@ -140,109 +144,157 @@ export function Button(props: ButtonProps) {
    */
   function $textStyle({ pressed }: PressableStateCallbackType): StyleProp<TextStyle> {
     return [
-      themed($textPresets[preset]),
+      styles[$textPresetKeys[preset]],
       $textStyleOverride,
-      !!pressed && themed([$pressedTextPresets[preset], $pressedTextStyleOverride]),
+      !!pressed && [styles.pressedText, $pressedTextStyleOverride],
       !!disabled && $disabledTextStyleOverride,
     ]
   }
 
   return (
-    <Pressable
-      style={$viewStyle}
-      accessibilityRole="button"
-      accessibilityState={{ disabled: !!disabled }}
-      {...rest}
-      disabled={disabled}
+    <EaseView
+      animate={{
+        scale: pressed ? scale || 0.97 : 1,
+      }}
+      transition={{
+        type: "spring",
+        damping: 16,
+      }}
     >
-      {(state) => (
-        <>
-          {!!LeftAccessory && (
-            <LeftAccessory style={$leftAccessoryStyle} pressableState={state} disabled={disabled} />
-          )}
+      <Pressable
+        style={({pressed})=> $viewStyle({pressed})}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: !!disabled }}
+        onPressIn={() => setPressed(true)}
+        onPressOut={() => setPressed(false)}
+        {...rest}
+        disabled={disabled}
+      >
+        {(state) => (
+          <>
+            {!!LeftAccessory && (
+              <LeftAccessory
+                style={styles.leftAccessory}
+                pressableState={state}
+                disabled={disabled}
+              />
+            )}
 
-          <Text tx={tx} text={text} txOptions={txOptions} style={$textStyle(state)}>
-            {children}
-          </Text>
+            <Text tx={tx} text={text} txOptions={txOptions} style={$textStyle(state)}>
+              {children}
+            </Text>
 
-          {!!RightAccessory && (
-            <RightAccessory
-              style={$rightAccessoryStyle}
-              pressableState={state}
-              disabled={disabled}
-            />
-          )}
-        </>
-      )}
-    </Pressable>
+            {!!RightAccessory && (
+              <RightAccessory
+                style={styles.rightAccessory}
+                pressableState={state}
+                disabled={disabled}
+              />
+            )}
+          </>
+        )}
+      </Pressable>
+    </EaseView>
   )
 }
 
-const $baseViewStyle: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  minHeight: 56,
-  borderRadius: 4,
-  justifyContent: "center",
-  alignItems: "center",
-  paddingVertical: spacing.sm,
-  paddingHorizontal: spacing.sm,
-  overflow: "hidden",
-})
+const $viewPresetKeys = {
+  default: "viewDefault",
+  filled: "viewFilled",
+  reversed: "viewReversed",
+} as const
 
-const $baseTextStyle: ThemedStyle<TextStyle> = ({ typography }) => ({
-  fontSize: 16,
-  lineHeight: 20,
-  fontFamily: typography.primary.medium,
-  textAlign: "center",
-  flexShrink: 1,
-  flexGrow: 0,
-  zIndex: 2,
-})
+const $pressedViewPresetKeys = {
+  default: "pressedViewDefault",
+  filled: "pressedViewFilled",
+  reversed: "pressedViewReversed",
+} as const
 
-const $rightAccessoryStyle: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  marginStart: spacing.xs,
-  zIndex: 1,
-})
-const $leftAccessoryStyle: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  marginEnd: spacing.xs,
-  zIndex: 1,
-})
+const $textPresetKeys = {
+  default: "textDefault",
+  filled: "textFilled",
+  reversed: "textReversed",
+} as const
 
-const $viewPresets: Record<Presets, ThemedStyleArray<ViewStyle>> = {
-  default: [
-    $styles.row,
-    $baseViewStyle,
-    ({ colors }) => ({
-      borderWidth: 1,
-      borderColor: colors.palette.neutral400,
-      backgroundColor: colors.palette.neutral100,
-    }),
-  ],
-  filled: [
-    $styles.row,
-    $baseViewStyle,
-    ({ colors }) => ({ backgroundColor: colors.palette.neutral300 }),
-  ],
-  reversed: [
-    $styles.row,
-    $baseViewStyle,
-    ({ colors }) => ({ backgroundColor: colors.palette.neutral800 }),
-  ],
-}
-
-const $textPresets: Record<Presets, ThemedStyleArray<TextStyle>> = {
-  default: [$baseTextStyle],
-  filled: [$baseTextStyle],
-  reversed: [$baseTextStyle, ({ colors }) => ({ color: colors.palette.neutral100 })],
-}
-
-const $pressedViewPresets: Record<Presets, ThemedStyle<ViewStyle>> = {
-  default: ({ colors }) => ({ backgroundColor: colors.palette.neutral200 }),
-  filled: ({ colors }) => ({ backgroundColor: colors.palette.neutral400 }),
-  reversed: ({ colors }) => ({ backgroundColor: colors.palette.neutral700 }),
-}
-
-const $pressedTextPresets: Record<Presets, ThemedStyle<TextStyle>> = {
-  default: () => ({ opacity: 0.9 }),
-  filled: () => ({ opacity: 0.9 }),
-  reversed: () => ({ opacity: 0.9 }),
-}
+const styles = StyleSheet.create((theme) => ({
+  rightAccessory: {
+    marginStart: theme.spacing.xs,
+    zIndex: 1,
+  },
+  leftAccessory: {
+    marginEnd: theme.spacing.xs,
+    zIndex: 1,
+  },
+  viewDefault: {
+    minHeight: 56,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.sm,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: theme.colors.palette.neutral400,
+    backgroundColor: theme.colors.palette.primary100,
+  },
+  viewFilled: {
+    minHeight: 56,
+    borderRadius: 4,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.sm,
+    overflow: "hidden",
+    backgroundColor: theme.colors.palette.neutral300,
+  },
+  viewReversed: {
+    minHeight: 56,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.sm,
+    overflow: "hidden",
+    backgroundColor: theme.colors.palette.primary100,
+  },
+  textDefault: {
+    fontSize: 16,
+    lineHeight: 20,
+    fontFamily: theme.typography.primary.medium,
+    textAlign: "center",
+    flexShrink: 1,
+    flexGrow: 0,
+    zIndex: 2,
+  },
+  textFilled: {
+    fontSize: 16,
+    lineHeight: 20,
+    fontFamily: theme.typography.primary.medium,
+    textAlign: "center",
+    flexShrink: 1,
+    flexGrow: 0,
+    zIndex: 2,
+  },
+  textReversed: {
+    fontSize: 16,
+    lineHeight: 20,
+    fontFamily: theme.typography.primary.medium,
+    textAlign: "center",
+    flexShrink: 1,
+    flexGrow: 0,
+    zIndex: 2,
+    color: theme.colors.palette.neutral100,
+  },
+  pressedViewDefault: {
+    backgroundColor: theme.colors.palette.primary200,
+  },
+  pressedViewFilled: {
+    backgroundColor: theme.colors.palette.primary400,
+  },
+  pressedViewReversed: {
+    backgroundColor: theme.colors.palette.primary300,
+  },
+  pressedText: {
+    opacity: 0.9,
+  },
+}))
